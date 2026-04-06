@@ -595,6 +595,12 @@ def setup(
         if not cmaker.has_cmake_cache_arg(cmake_args, "CMAKE_OSX_ARCHITECTURES"):
             machine_archs = "x86_64;arm64" if machine == "universal2" else machine
             cmake_args.append(f"-DCMAKE_OSX_ARCHITECTURES:STRING={machine_archs}")
+    elif "SKBUILD_PLATFORM_TAG" in os.environ:
+        # Support custom platform tags from build tools (e.g., for iOS, tvOS, watchOS)
+        # The SKBUILD_PLATFORM_TAG environment variable overrides the default platform tag
+        # for wheel naming, while _PYTHON_HOST_PLATFORM is used by distutils.util.get_platform()
+        platform_tag = os.environ["SKBUILD_PLATFORM_TAG"]
+        os.environ.setdefault("_PYTHON_HOST_PLATFORM", platform_tag)
 
     # Select correct --config using final CMAKE_BUILD_TYPE
     for item in cmake_args[::-1]:
